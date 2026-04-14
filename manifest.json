@@ -1,6 +1,6 @@
 {
   "name": "EA station For driver",
-  "short_name": "EA station onner",
+  "short_name": "EA station owner",
   "description": "This is EA station. try it for get efficiency. you can get fuel by easy way",
   "start_url": "index.html",
   "display": "standalone",
