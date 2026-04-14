@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Programmers Community</title>
-  <link rel="icon" type="image/x-icon" href="/images/Icon.png">
-<link rel="manifest" href="manifest.json">
-<style>
-  h1{
-    text-align: center;
-    color: yellow;
-    text-shadow: 2px 2px 5px red, 0 0 10px blue, 0 0 15px green;
-  }
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA station</title>
 </head>
 <body>
-<h1>This is Owner web in EA station created by Eyob and Alazar</h1>
+    <script>
+let IsLoginedBefore = localStorage.getItem("IsLogined");
+if(IsLoginedBefore == "true") {
+    window.location.href = "home.html";
+} else {
+    window.location.href = "signin.html";
+}
+        
+    </script>
 </body>
 </html>
