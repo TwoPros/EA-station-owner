@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Owner Dashboard - EA Station</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e21 0%, #1a1f3a 100%);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: #0f1225;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0a0e21 0%, #12152b 100%);
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .station-name {
+            color: #00d4ff;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        h1 span {
+            color: #00d4ff;
+        }
+
+        .subtitle {
+            color: #8890b0;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        /* Stats Cards */
+        .main-container {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1a1f3a, #141834);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #00d4ff;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #8890b0;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+       
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: rgba(15, 18, 37, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: #8890b0;
+        }
+
+        .nav-item.active .nav-label {
+            color: #00d4ff;
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s;
+            z-index: 10;
+            font-size: 2rem;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="station-name">
+                ⛽ <span id="stationName">Loading...</span>
+            </div>
+            <h1>Owner <span>Dashboard</span></h1>
+            <div class="subtitle">Manage your station in real-time</div>
+        </div>
+
+        <div class="main-container">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="pendingOrders">0</div>
+                <div class="stat-label">Pending Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>               
+                <div class="stat-label">Analysis</div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </div>
+            <div class="nav-item" onclick="window.location.href='input.html'">
+                <div class="nav-icon">📝</div>
+                <div class="nav-label">Input</div>
+            </div>
+            <div class="nav-item" onclick="window.location.href='message.html'">
+                <div class="nav-icon">💬</div>
+                <div class="nav-label">Messages</div>
+            </div>
+            <div class="nav-item" onclick="window.location.href='profile.html'">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Profile</div>
+            </div>
+        </div>
+
+        <div class="refresh-btn" onclick="location.reload()">
+            🔄
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
+            authDomain: "ea-station.firebaseapp.com",
+            databaseURL: "https://ea-station-default-rtdb.firebaseio.com",
+            projectId: "ea-station",
+            storageBucket: "ea-station.firebasestorage.app",
+            messagingSenderId: "493379253444",
+            appId: "1:493379253444:web:6319c915469b0359040591",
+            measurementId: "G-X670BF4H52"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        let stationId = "st_001";
+        let stationName = "Bole Total";
+        
+        document.getElementById("stationName").textContent = stationName;
+        
+        const orderRef = ref(database, `EA station/stations/${stationId}/orders`);
+        
+        async function loadDashboard() {
+            const snapshot = await get(orderRef);
+            
+            if (!snapshot.exists()) {
+                document.getElementById("totalUsers").textContent = "0";
+                document.getElementById("pendingOrders").textContent = "0";
+                return;
+            }
+            
+            const data = snapshot.val();          
+            
+						let pendingUsers = new Set();
+						
+						for (let key in data) {
+						    const item = data[key];
+						
+						    if (item.status === "pending") {
+						        pendingUsers.add(item.userId); // only pending + unique
+						    }
+						}
+						
+						let noOrder = pendingUsers.size;
+						let noUser = new Set(Object.values(data).map(i => i.userId)).size;							
+														                 
+            document.getElementById("totalUsers").textContent = noUser;
+            document.getElementById("pendingOrders").textContent = noOrder;
+            
+
+        }
+        
+        // Real-time listener
+        onValue(orderRef, () => {
+            loadDashboard();
+        });
+        
+        loadDashboard();
+    </script>
+</body>
+</html>
