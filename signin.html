@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Owner Sign In - EA Station</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e21 0%, #1a1f3a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-card {
+            background: rgba(15, 18, 37, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 50px 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        h1 span {
+            color: #00d4ff;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #00d4ff;
+            margin-top: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8890b0;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #b0b5d0;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        label i {
+            margin-right: 8px;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon span {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #556080;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: #556080;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .forgot-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-link a {
+            color: #8890b0;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .forgot-link a:hover {
+            color: #00d4ff;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #556080;
+            font-size: 11px;
+        }
+
+        .footer span {
+            color: #00d4ff;
+        }
+
+        /* Toast Message */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            max-width: 360px;
+            margin: 0 auto;
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.success {
+            background: #00ff88;
+            color: #0a0e21;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading state */
+        .login-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <div class="logo">
+                <div class="logo-icon">⛽</div>
+                <h1>EA <span>Station</span></h1>
+                <div class="badge">Owner Portal</div>
+            </div>
+            <div class="subtitle">Sign in to manage your station</div>
+
+            <div class="form-group">
+                <label><i>👤</i> Username</label>
+                <div class="input-icon">
+                    <span>👨‍💼</span>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i>🔒</i> Password</label>
+                <div class="input-icon">
+                    <span>🔐</span>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+            </div>
+
+            <button class="login-btn" onclick="login()">
+                Sign In →
+            </button>
+
+            <div class="forgot-link">
+                <a href="#">Forgot password?</a>
+            </div>
+
+            <div class="footer">
+                Powered by <span>EA Station</span> | Secure Access
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
+            authDomain: "ea-station.firebaseapp.com",
+            databaseURL: "https://ea-station-default-rtdb.firebaseio.com",
+            projectId: "ea-station",
+            storageBucket: "ea-station.firebasestorage.app",
+            messagingSenderId: "493379253444",
+            appId: "1:493379253444:web:6319c915469b0359040591",
+            measurementId: "G-X670BF4H52"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function showToast(message, isSuccess = false) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = isSuccess ? "toast success" : "toast";
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 3000);
+        }
+
+        window.login = async function () {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const loginBtn = document.querySelector(".login-btn");
+
+            if (!username || !password) {
+                showToast("❌ Please enter both username and password");
+                return;
+            }
+
+            loginBtn.textContent = "⏳ Signing in...";
+            loginBtn.classList.add("loading");
+
+            try {
+                const snapshot = await get(ref(db, "EA station/stations"));
+                if (!snapshot.exists()) {
+                    showToast("❌ No stations found");
+                    loginBtn.textContent = "Sign In →";
+                    loginBtn.classList.remove("loading");
+                    return;
+                }
+
+                const stations = snapshot.val();
+                let found = false;
+                let foundStationId = null;
+
+                for (let stationId in stations) {
+                    const station = stations[stationId];
+                    if (!station.private) continue;
+
+                    const dbUser = station.private.UserName;
+                    const dbPass = station.private.password;
+
+                    if (username === dbUser && password === dbPass) {
+                        found = true;
+                        foundStationId = stationId;
+                        localStorage.setItem("User", JSON.stringify(station.Information));
+                        localStorage.setItem("IsLogined", "true");
+                        localStorage.setItem("stationId", stationId);
+                        localStorage.setItem("stationName", station.name);
+                        showToast("✅ Login successful! Redirecting...", true);
+                        
+                        setTimeout(() => {
+                            window.location.href = "home.html";
+                        }, 1500);
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    showToast("❌ Invalid username or password");
+                    loginBtn.textContent = "Sign In →";
+                    loginBtn.classList.remove("loading");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("❌ Error occurred. Please try again.");
+                loginBtn.textContent = "Sign In →";
+                loginBtn.classList.remove("loading");
+            }
+        };
+
+        // Allow Enter key to submit
+        document.getElementById("password").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>
