@@ -224,9 +224,10 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        
-        let stationId = "st_001";
-        let stationName = "Bole Total";
+  
+   
+        let stationId = localStorage.getItem("stationId");
+        let stationName = localStorage.getItem("stationName");
         
         document.getElementById("stationName").textContent = stationName;
         
