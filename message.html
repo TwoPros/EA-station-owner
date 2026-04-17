@@ -281,8 +281,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const stationId = "st_001";
-        const stationName = "Bole Total";
+        let stationId = localStorage.getItem("stationId");
+        let stationName = localStorage.getItem("stationName");
+                
         const chatList = document.getElementById("chatList");
         const searchInput = document.getElementById("searchInput");
         
