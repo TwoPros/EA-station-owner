@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Orders Management - EA Station</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e21 0%, #1a1f3a 100%);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #0f1225;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0a0e21 0%, #12152b 100%);
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .station-name {
+            color: #00d4ff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        h1 span {
+            color: #00d4ff;
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            padding: 15px 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 25px;
+            padding: 8px 15px;
+        }
+
+        .search-box span {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: #556080;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 25px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .filter-select option {
+            background: #0f1225;
+        }
+
+        .mode-toggle {
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #00d4ff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-toggle.active {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 15px;
+            color: #00d4ff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        /* Stats */
+        .stats-row {
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-badge {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #00d4ff;
+        }
+
+        .stat-badge span {
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Orders Container */
+        .orders-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            max-height: calc(100vh - 200px);
+        }
+
+        .orders-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 15px;
+        }
+
+        .column-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column-title .count {
+            color: #00d4ff;
+        }
+
+        .order-card {
+            background: linear-gradient(135deg, #1a1f3a, #141834);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .order-card:hover {
+            transform: translateX(3px);
+            border-color: rgba(0, 212, 255, 0.4);
+        }
+
+        .order-card.dragging {
+            opacity: 0.5;
+        }
+
+        .order-card.drag-over {
+            border: 2px solid #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Normal Mode */
+        .order-card.normal-mode .order-name {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .order-card.normal-mode .order-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 11px;
+            color: #8890b0;
+        }
+
+        .order-card.normal-mode .order-details span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        .order-card.normal-mode .order-time {
+            color: #00d4ff;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* Move Mode */
+        .order-card.move-mode {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .order-card.move-mode .order-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .done-btn, .cancel-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .done-btn {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .done-btn:hover {
+            background: rgba(0, 255, 136, 0.4);
+        }
+
+        .cancel-btn {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 107, 107, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #556080;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            max-width: 360px;
+            margin: 0 auto;
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.success {
+            background: #00ff88;
+            color: #0a0e21;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="station-name" id="stationName">Loading...</div>
+            <h1>Orders <span>Management</span></h1>
+        </div>
+
+        <div class="controls-bar">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by name or userId...">
+            </div>
+            <select id="filterSelect" class="filter-select">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="done">Completed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <div class="mode-toggle" id="modeToggle">
+                <span>✋</span> Move Mode
+            </div>
+            <button class="refresh-btn" id="refreshBtn">🔄</button>
+        </div>
+
+        <div class="stats-row" id="statsRow">
+            <div class="stat-badge">📦 Pending: <span id="pendingCount">0</span></div>
+            <div class="stat-badge">✅ Completed: <span id="doneCount">0</span></div>
+            <div class="stat-badge">❌ Cancelled: <span id="cancelledCount">0</span></div>
+        </div>
+
+        <div class="orders-container" id="ordersContainer">
+            <div class="orders-grid" id="ordersGrid">
+                <!-- Columns will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue, get, update, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
+            authDomain: "ea-station.firebaseapp.com",
+            databaseURL: "https://ea-station-default-rtdb.firebaseio.com",
+            projectId: "ea-station",
+            storageBucket: "ea-station.firebasestorage.app",
+            messagingSenderId: "493379253444",
+            appId: "1:493379253444:web:6319c915469b0359040591",
+            measurementId: "G-X670BF4H52"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        const stationId =  "st_001";
+        let allOrders = [];
+        let isMoveMode = false;
+        let draggedOrder = null;
+        
+        const ordersRef = ref(database, `EA station/stations/${stationId}/orders`);
+        const stationRef = ref(database, `EA station/stations/${stationId}/Information`);
+        
+        function showToast(message, isSuccess = false) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = isSuccess ? "toast success" : "toast";
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 3000);
+        }
+        
+        async function loadStationName() {
+            const snapshot = await get(stationRef);
+            if (snapshot.exists()) {
+                document.getElementById("stationName").textContent = snapshot.val().name || "EA Station";
+            }
+        }
+        
+        function updateStats() {
+            const pending = allOrders.filter(o => o.status === "pending").length;
+            const done = allOrders.filter(o => o.status === "completed").length;
+            const cancelled = allOrders.filter(o => o.status === "canceled").length;
+            document.getElementById("pendingCount").textContent = pending;
+            document.getElementById("doneCount").textContent = done;
+            document.getElementById("cancelledCount").textContent = cancelled;
+        }
+        
+        function renderOrders() {
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const filter = document.getElementById("filterSelect").value;
+            
+            let filtered = allOrders;
+            if (searchTerm) {
+                filtered = filtered.filter(o => 
+                    o.name?.toLowerCase().includes(searchTerm) || 
+                    o.userId?.toLowerCase().includes(searchTerm)
+                );
+            }
+            if (filter !== "all") {
+                filtered = filtered.filter(o => o.status === filter);
+            }
+            
+            const pending = filtered.filter(o => o.status === "pending").sort((a, b) => a.time - b.time);
+            const done = filtered.filter(o => o.status === "completed").sort((a, b) => b.time - a.time);
+            const cancelled = filtered.filter(o => o.status === "canceled").sort((a, b) => b.time - a.time);
+            
+            const columns = [
+                { title: "⏳ Pending", orders: pending, type: "pending", color: "#00d4ff" },
+                { title: "✅ Completed", orders: done, type: "done", color: "#00ff88" },
+                { title: "❌ Cancelled", orders: cancelled, type: "cancelled", color: "#ff6b6b" }
+            ];
+            
+            const grid = document.getElementById("ordersGrid");
+            grid.innerHTML = "";
+            
+            columns.forEach(col => {
+                const columnDiv = document.createElement("div");
+                columnDiv.className = "column";
+                columnDiv.setAttribute("data-status", col.type);
+                columnDiv.innerHTML = `
+                    <div class="column-title">
+                        ${col.title}
+                        <span class="count">${col.orders.length}</span>
+                    </div>
+                    <div class="orders-list" data-status="${col.type}">
+                        ${col.orders.length === 0 ? '<div class="empty-state">No orders</div>' : ""}
+                    </div>
+                `;
+                
+                const ordersList = columnDiv.querySelector(".orders-list");
+                
+                col.orders.forEach(order => {
+                    const orderCard = createOrderCard(order, col.type);
+                    ordersList.appendChild(orderCard);
+                });
+                
+                grid.appendChild(columnDiv);
+            });
+            
+            attachDragEvents();
+        }
+        
+        function createOrderCard(order, statusType) {
+            const card = document.createElement("div");
+            card.className = `order-card ${isMoveMode ? "move-mode" : "normal-mode"}`;
+            card.setAttribute("data-order-id", order.id);
+            card.setAttribute("data-order-time", order.time);
+            card.setAttribute("data-status", statusType);
+            card.setAttribute("draggable", isMoveMode && statusType === "pending");
+            
+            if (isMoveMode && statusType === "pending") {
+                card.draggable = true;
+            }
+            
+            if (isMoveMode) {
+                card.innerHTML = `
+                    <div class="order-name">${escapeHtml(order.name || "Unknown")}</div>
+                `;
+            } else {
+                const time = new Date(order.time).toLocaleTimeString();
+                const date = new Date(order.time).toLocaleDateString();
+                card.innerHTML = `
+                    <div class="order-name">${escapeHtml(order.name || "Unknown")}</div>
+                    <div class="order-details">
+                        <span>🆔 ${order.userId?.slice(-6) || "N/A"}</span>
+                        <span>⛽ ${order.fuel || 0}L</span>
+                        <span>📋 ${order.id?.slice(-6) || "N/A"}</span>
+                    </div>
+                    <div class="order-time">📅 ${date} ${time}</div>
+                    ${statusType === "pending" ? `
+                        <div class="order-actions">
+                            <button class="done-btn" onclick="markAsDone('${order.id}')">✅ Done</button>
+                            <button class="cancel-btn" onclick="markAsCancelled('${order.id}')">❌ Cancel</button>
+                        </div>
+                    ` : ""}
+                `;
+            }
+            
+            return card;
+        }
+        
+        function attachDragEvents() {
+            const cards = document.querySelectorAll(".order-card[draggable='true']");
+            const containers = document.querySelectorAll(".orders-list");
+            
+            cards.forEach(card => {
+                card.removeEventListener("dragstart", dragStart);
+                card.removeEventListener("dragend", dragEnd);
+                card.addEventListener("dragstart", dragStart);
+                card.addEventListener("dragend", dragEnd);
+            });
+            
+            containers.forEach(container => {
+                container.removeEventListener("dragover", dragOver);
+                container.removeEventListener("dragleave", dragLeave);
+                container.removeEventListener("drop", drop);
+                container.addEventListener("dragover", dragOver);
+                container.addEventListener("dragleave", dragLeave);
+                container.addEventListener("drop", drop);
+            });
+        }
+        
+        function dragStart(e) {
+            draggedOrder = {
+                id: e.target.closest(".order-card").getAttribute("data-order-id"),
+                time: parseInt(e.target.closest(".order-card").getAttribute("data-order-time"))
+            };
+            e.target.closest(".order-card").classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+        }
+        
+        function dragEnd(e) {
+            document.querySelectorAll(".order-card").forEach(card => {
+                card.classList.remove("dragging", "drag-over");
+            });
+            draggedOrder = null;
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+            const targetCard = e.target.closest(".order-card");
+            if (targetCard && targetCard.getAttribute("data-status") === "pending") {
+                targetCard.classList.add("drag-over");
+            }
+            e.dataTransfer.dropEffect = "move";
+        }
+        
+        function dragLeave(e) {
+            const targetCard = e.target.closest(".order-card");
+            if (targetCard) {
+                targetCard.classList.remove("drag-over");
+            }
+        }
+        
+        async function drop(e) {
+            e.preventDefault();
+            const targetCard = e.target.closest(".order-card");
+            if (!targetCard || !draggedOrder) return;
+            
+            targetCard.classList.remove("drag-over");
+            
+            const targetOrderId = targetCard.getAttribute("data-order-id");
+            const targetTime = parseInt(targetCard.getAttribute("data-order-time"));
+            
+            if (draggedOrder.id === targetOrderId) return;
+            
+            // Get all pending orders
+            const pendingOrders = allOrders.filter(o => o.status === "pending").sort((a, b) => a.time - b.time);
+            const draggedIndex = pendingOrders.findIndex(o => o.id === draggedOrder.id);
+            const targetIndex = pendingOrders.findIndex(o => o.id === targetOrderId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // Calculate new time
+            let newTime;
+            if (draggedIndex < targetIndex) {
+                // Moving down
+                newTime = pendingOrders[targetIndex].time + 1;
+            } else {
+                // Moving up
+                newTime = pendingOrders[targetIndex].time - 1;
+            }
+            
+            // Ensure unique time
+            const timeExists = pendingOrders.some(o => o.time === newTime && o.id !== draggedOrder.id);
+            if (timeExists) {
+                // Shift all orders
+                if (draggedIndex < targetIndex) {
+                    for (let i = draggedIndex + 1; i <= targetIndex; i++) {
+                        await update(ref(database, `EA station/stations/${stationId}/orders/${pendingOrders[i].id}`), {
+                            time: pendingOrders[i].time - 1
+                        });
+                    }
+                    newTime = pendingOrders[targetIndex].time;
+                } else {
+                    for (let i = targetIndex; i < draggedIndex; i++) {
+                        await update(ref(database, `EA station/stations/${stationId}/orders/${pendingOrders[i].id}`), {
+                            time: pendingOrders[i].time + 1
+                        });
+                    }
+                    newTime = pendingOrders[targetIndex].time;
+                }
+            }
+            
+            await update(ref(database, `EA station/stations/${stationId}/orders/${draggedOrder.id}`), {
+                time: newTime
+            });
+            
+            showToast("✅ Order position updated!", true);
+            loadOrders();
+        }
+        
+        window.markAsDone = async function(orderId) {
+            await update(ref(database, `EA station/stations/${stationId}/orders/${orderId}`), {
+                status: "completed",
+                completedAt: Date.now()
+            });
+            showToast("✅ Order marked as done!", true);
+            loadOrders();
+        };
+        
+        window.markAsCancelled = async function(orderId) {
+            await update(ref(database, `EA station/stations/${stationId}/orders/${orderId}`), {
+                status: "canceled",
+                cancelledAt: Date.now()
+            });
+            showToast("❌ Order cancelled!");
+            loadOrders();
+        };
+        
+        function escapeHtml(text) {
+            if (!text) return "Unknown";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function loadOrders() {
+            onValue(ordersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    allOrders = Object.entries(data).map(([id, order]) => ({
+                        id,
+                        ...order
+                    }));
+                } else {
+                    allOrders = [];
+                }
+                updateStats();
+                renderOrders();
+            });
+        }
+        
+        // Mode toggle
+        document.getElementById("modeToggle").addEventListener("click", () => {
+            isMoveMode = !isMoveMode;
+            const toggle = document.getElementById("modeToggle");
+            if (isMoveMode) {
+                toggle.classList.add("active");
+                showToast("✋ Move Mode ON - Drag orders to reorder", true);
+            } else {
+                toggle.classList.remove("active");
+                showToast("👆 Move Mode OFF");
+            }
+            renderOrders();
+        });
+        
+        document.getElementById("refreshBtn").addEventListener("click", () => {
+            loadOrders();
+            showToast("🔄 Refreshed!", true);
+        });
+        
+        function removeUnWanted() {
+            const filter = document.getElementById("filterSelect").value;
+            
+        }
+        
+        document.getElementById("searchInput").addEventListener("input", () => renderOrders());
+        document.getElementById("filterSelect").addEventListener("change", () => {
+             renderOrders()
+             removeUnWanted()
+         });
+        
+        loadStationName();
+        loadOrders();
+    </script>
+</body>
+</html>
