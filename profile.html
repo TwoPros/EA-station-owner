@@ -313,6 +313,9 @@
         import { getDatabase, ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         import {signOut, getAuth} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+        let stationId = localStorage.getItem("stationId");
+        let stationName = localStorage.getItem("stationName");
+        
         const firebaseConfig = {
             apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
             authDomain: "ea-station.firebaseapp.com",
