@@ -332,7 +332,7 @@
                         localStorage.setItem("User", JSON.stringify(station.Information));
                         localStorage.setItem("IsLogined", "true");
                         localStorage.setItem("stationId", stationId);
-                        localStorage.setItem("stationName", station.name);
+                        localStorage.setItem("stationName", station.Information.name);
                         showToast("✅ Login successful! Redirecting...", true);
                         
                         setTimeout(() => {
