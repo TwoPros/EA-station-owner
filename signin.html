@@ -265,102 +265,120 @@
 
     <div id="toast" class="toast"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
-            authDomain: "ea-station.firebaseapp.com",
-            databaseURL: "https://ea-station-default-rtdb.firebaseio.com",
-            projectId: "ea-station",
-            storageBucket: "ea-station.firebasestorage.app",
-            messagingSenderId: "493379253444",
-            appId: "1:493379253444:web:6319c915469b0359040591",
-            measurementId: "G-X670BF4H52"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyBW1nFDfogr_V3uAsrMPjx1tDULl7URgZQ",
+    authDomain: "ea-station.firebaseapp.com",
+    databaseURL: "https://ea-station-default-rtdb.firebaseio.com",
+    projectId: "ea-station",
+    storageBucket: "ea-station.firebasestorage.app",
+    messagingSenderId: "493379253444",
+    appId: "1:493379253444:web:6319c915469b0359040591",
+    measurementId: "G-X670BF4H52"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-        function showToast(message, isSuccess = false) {
-            const toast = document.getElementById("toast");
-            toast.textContent = message;
-            toast.className = isSuccess ? "toast success" : "toast";
-            toast.style.display = "block";
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 3000);
+// refs
+const privatesRef = ref(db, "EA station/privates/stations");
+
+// toast
+function showToast(message, isSuccess = false) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = isSuccess ? "toast success" : "toast";
+    toast.style.display = "block";
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 3000);
+}
+
+// login function
+window.login = async function () {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const loginBtn = document.querySelector(".login-btn");
+
+    if (!username || !password) {
+        showToast("❌ Please enter both username and password");
+        return;
+    }
+
+    loginBtn.textContent = "⏳ Signing in...";
+    loginBtn.classList.add("loading");
+
+    try {
+        // 1. get all station privates
+        const snapshot = await get(privatesRef);
+
+        if (!snapshot.exists()) {
+            showToast("❌ No stations found");
+            resetBtn();
+            return;
         }
 
-        window.login = async function () {
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const loginBtn = document.querySelector(".login-btn");
+        const privates = snapshot.val();
+        let found = false;
+        let stationId = null;
 
-            if (!username || !password) {
-                showToast("❌ Please enter both username and password");
-                return;
+        // 2. check credentials
+        for (let id in privates) {
+            const stationPrivate = privates[id];
+
+            if (
+                stationPrivate?.UserName === username &&
+                stationPrivate?.password === password
+            ) {
+                found = true;
+                stationId = id;
+                break;
             }
+        }
 
-            loginBtn.textContent = "⏳ Signing in...";
-            loginBtn.classList.add("loading");
+        if (!found) {
+            showToast("❌ Invalid username or password");
+            resetBtn();
+            return;
+        }
 
-            try {
-                const snapshot = await get(ref(db, "EA station/stations"));
-                if (!snapshot.exists()) {
-                    showToast("❌ No stations found");
-                    loginBtn.textContent = "Sign In →";
-                    loginBtn.classList.remove("loading");
-                    return;
-                }
+        // 3. get station public info
+        const infoSnap = await get(ref(db, `EA station/stations/${stationId}/Information`));
+        const info = infoSnap.val();
 
-                const stations = snapshot.val();
-                let found = false;
-                let foundStationId = null;
+        // 4. save session
+        localStorage.setItem("User", JSON.stringify(info || {}));
+        localStorage.setItem("IsLogined", "true");
+        localStorage.setItem("stationId", stationId);
+        localStorage.setItem("stationName", info?.name || "");
 
-                for (let stationId in stations) {
-                    const station = stations[stationId];
-                    if (!station.private) continue;
+        showToast("✅ Login successful! Redirecting...", true);
 
-                    const dbUser = station.private.UserName;
-                    const dbPass = station.private.password;
+        setTimeout(() => {
+            window.location.href = "home.html";
+        }, 1500);
 
-                    if (username === dbUser && password === dbPass) {
-                        found = true;
-                        foundStationId = stationId;
-                        localStorage.setItem("User", JSON.stringify(station.Information));
-                        localStorage.setItem("IsLogined", "true");
-                        localStorage.setItem("stationId", stationId);
-                        localStorage.setItem("stationName", station.Information.name);
-                        showToast("✅ Login successful! Redirecting...", true);
-                        
-                        setTimeout(() => {
-                            window.location.href = "home.html";
-                        }, 1500);
-                        break;
-                    }
-                }
+    } catch (err) {
+        console.error(err);
+        showToast("❌ Error occurred. Please try again.");
+        resetBtn();
+    }
 
-                if (!found) {
-                    showToast("❌ Invalid username or password");
-                    loginBtn.textContent = "Sign In →";
-                    loginBtn.classList.remove("loading");
-                }
-            } catch (err) {
-                console.error(err);
-                showToast("❌ Error occurred. Please try again.");
-                loginBtn.textContent = "Sign In →";
-                loginBtn.classList.remove("loading");
-            }
-        };
+    function resetBtn() {
+        loginBtn.textContent = "Sign In →";
+        loginBtn.classList.remove("loading");
+    }
+};
 
-        // Allow Enter key to submit
-        document.getElementById("password").addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                login();
-            }
-        });
-    </script>
+// enter key support
+document.getElementById("password").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        login();
+    }
+});
+</script>
 </body>
 </html>
